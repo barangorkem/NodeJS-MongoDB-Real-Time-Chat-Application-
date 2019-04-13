@@ -1,0 +1,58 @@
+<%- include header.ejs %>
+
+<h2>Open room</h2>
+<h4 id="name" style="visibility:hidden;" ><%= name %></h4>
+
+<input type="hidden" id="userslength" value="<%= users.length %>" />
+<form  >
+    <div class="form-group">
+      <label for="odaadi">Oda Adı</label>
+      <input type="text" class="form-control" id="roomName" name="roomName"  placeholder="Oda adi">
+    </div>
+     
+  
+      <% users.forEach(function(user,index){ %>
+        <div class="form-check">
+            <label class="form-check-label" for="check2">
+              <input type="checkbox" class="form-check-input" id="option<%= index %>" name="option<%= index %>" value="<%= user.name %>"><%= user.name %>
+            </label>
+          </div> 
+    <%  }); %>
+    <button type="button" onclick="openRoom()" class="btn btn-primary">Submit</button>
+  </form>
+
+  <script>
+  
+  var checks=document.getElementsByClassName("form-check-input");
+  var userArray=[];
+  var userslength=document.getElementById("userslength").value;
+  var roomInfo={};
+  function openRoom()
+  {
+    var roomName=document.getElementById("roomName").value;
+      userArray=[];
+    for(let x=0;x<userslength;x++)
+  {
+    if(checks[x].checked===true)
+    {
+        userArray.push(checks[x].value);
+    }
+  }
+  roomInfo={
+      'roomName':roomName,
+      'userArray':userArray
+  };
+  $.ajax({
+    url: '/openroom', 
+    type: 'POST', 
+    contentType: 'application/json', 
+    data: JSON.stringify(roomInfo),
+    success: function(response) {
+      window.location.href=`/chatroom/${response._id}`;
+
+    }
+  }
+);
+  }
+ 
+  </script>

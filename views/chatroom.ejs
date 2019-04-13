@@ -1,0 +1,119 @@
+
+<%- include header.ejs %>
+
+<style>
+        #messages{height:300px;}
+    </style>
+
+<h4>Chat Room</h4>
+<input type="hidden" id="roomName" value="<%= chatRoomInfo.roomName %>"/>
+<input type="hidden" id="roomId" value="<%= chatRoomInfo._id %>"/>
+
+<h4 id="username" ><%= name %></h4>
+<br/>
+<ul id="onlineusers">
+
+    </ul>
+<div class="container">
+    
+    <div class="row">
+        <div class="col-md-6 offset-md-3 col-sm-12">
+          
+            <h1 class="text-center">
+                MongoChat 
+                <button id="clear" class="btn btn-danger">Clear</button>
+            </h1>
+            <div id="status"></div>
+            <div id="chat">
+                <br>
+                <div class="card">
+                    <div id="messages" class="card-block">
+
+                    </div>
+                </div>
+                <br>
+                <textarea id="textarea" class="form-control" placeholder="Enter message..."></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+
+     <script>
+      
+         
+      var statusDefault = status.textContent;
+      var roomName=document.getElementById("roomName").value;
+      var username=document.getElementById("username").innerHTML;
+      var roomId=document.getElementById("roomId").value;
+      var messages=document.getElementById("messages");
+      var textarea=document.getElementById("textarea");
+      var onlineusers=document.getElementById('onlineusers');
+      var socket = io('http://127.0.0.1:5000');
+        if(socket!==undefined)
+        {
+         console.log("Connected socket...")
+         socket.emit('addUser',username,function(data){
+                if(data)
+                {
+                    console.log(data);
+                   
+                    socket.emit("channelfixer",roomId);
+
+                    socket.emit("chatmessage",roomId);
+
+                    socket.on("getRoomUsers",function(data){
+  
+                    console.log('users',data);
+                    var html='';
+                        console.log(data);
+                        for(x=0;x<data.length;x++)
+                        {
+                          if(data[x])
+                                html+=`<li class="list-group-item" style="color:green;">` +data[x]+'</li>';
+                            
+                                
+                        }
+                        onlineusers.innerHTML=html;
+                    });
+
+                    socket.on("message",function(data){
+                        console.log("message");
+                        console.log(data);
+                    });             
+                }
+            });
+
+socket.emit("sendMessageInfo",{roomId:roomId});
+            
+socket.on("getMessageHistory",function(data){
+  
+    for(var x = 0;x < data.length;x++){
+       
+        
+                            // Build out message div
+                            var message = document.createElement('div');
+                            message.setAttribute('class', 'chat-message');
+                            message.textContent = data[x].name+": "+data[x].message;
+                            messages.appendChild(message);
+                            messages.insertBefore(message, messages.firstChild);
+                        
+                    }
+});
+
+ // Handle Input
+ textarea.addEventListener('keydown', function(event){
+                    if(event.which === 13 && event.shiftKey == false){
+                        console.log('calisti');
+                        // Emit to server input
+                        socket.emit('input', {
+                            name:username,
+                            message:textarea.value,
+                            roomId:roomId
+                        });
+                        event.preventDefault();
+                    }
+                });
+        }
+        
+     </script>

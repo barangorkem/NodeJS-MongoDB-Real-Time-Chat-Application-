@@ -1,0 +1,31 @@
+
+
+
+<h4 id="sendUser" ><%= sendUser %></h4>
+<h4 id="loginUser" style="visibility:hidden;""><%= loginUser %></h4>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+
+<script>
+      var socket = io('http://127.0.0.1:5000');
+      if(socket!==undefined)
+        {
+            console.log("Connected socket...");
+            let loginUser=document.getElementById("loginUser").innerHTML;
+            let sendUser=document.getElementById("sendUser").innerHTML;
+            console.log("username: "+loginUser);
+            socket.emit('addUser',loginUser,function(data){
+                if(data)
+                {
+                    console.log(data);
+                }
+            });
+            socket.on('getUsers',function(data){
+                        console.log(data);
+                    });
+
+          
+        }
+
+</script>

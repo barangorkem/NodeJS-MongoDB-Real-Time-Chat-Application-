@@ -1,0 +1,78 @@
+<%- include header.ejs %>
+
+
+<h1 class="mt-4">Dashboard</h1>
+
+<h4 style="visibility:hidden;" id="username"><%=name%></h4>
+<h4>Odalar</h4>
+<ul>
+    <ul>
+        <% for(var i=0; i<userRooms.length; i++) { %>
+            <li>
+               <a href="/chatroom/<%=userRooms[i]._id %>"><%= userRooms[i].roomName %></a> 
+            </li>
+        <% } %>
+    </ul>
+</ul>
+    <h3 style="color:green;">Online Users</h3>
+
+<ul id="onlineusers">
+
+    </ul>
+    <!--
+   
+<h2>Tüm kullanıcılara mesaj gönder</h2>
+<textarea rows="10" id="sendMessageAllText" style="width: 100%;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;">
+</textarea>
+<button class="btn btn-secondary" onclick="sendMessageAllUsers()" style="float:right;">Gönder</button>
+<br/>
+     
+    -->
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+
+     <script>
+      var socket = io('http://127.0.0.1:5000');
+      var onlineusers=document.getElementById("onlineusers");
+        if(socket!==undefined)
+        {
+            console.log("Connected socket...")
+            let username=document.getElementById("username").innerHTML;
+            console.log("username: "+username);
+            socket.emit('addUser',username,function(data){
+                if(data)
+                {
+                    console.log(data);
+                    
+                }
+            });
+            socket.on('getUsers',function(data){
+                var html='';
+                        console.log(data);
+                        for(x=0;x<data.length;x++)
+                        {
+                          if(data[x]!=username)
+                         
+                                html+=`<li class="list-group-item" style="color:green;">` +data[x]+'</li>';
+                            
+                                
+                        }
+                        onlineusers.innerHTML=html;
+
+                    });
+                    /*
+            function sendMessageAllUsers()
+            {
+                let message=document.getElementById("sendMessageAllText").value;
+                console.log("send message function "+message);
+                socket.emit('sendMessageAllUsers',message);
+                document.getElementById("sendMessageAllText").value="";
+            }
+            */
+        }
+        
+     </script>
